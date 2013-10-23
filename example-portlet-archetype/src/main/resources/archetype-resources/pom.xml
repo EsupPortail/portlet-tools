@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${groupId}</groupId>
+  <artifactId>${artifactId}</artifactId>
+  <name>Example Portlet Project</name>
+  <version>${version}</version>
+  <packaging>war</packaging>
+  <description>Example of a portlet project and how to use Portlet Tools for Maven</description>
+  
+  <!-- Repositories for dependencies -->
+  <repositories>
+  
+    <!-- Central repository -->
+    <repository>
+      <id>central</id>
+      <url>http://repo.maven.apache.org/maven2/</url>
+    </repository>
+
+    <!-- jlehtinen.net repository -->
+    <repository>
+      <id>jlehtinen.net</id>
+      <url>http://repo.jlehtinen.net/maven2/</url>
+    </repository>      
+    
+  </repositories>
+
+  <!-- Repositories for plugins -->
+  <pluginRepositories>
+  
+    <!-- Central repository -->
+    <pluginRepository>
+      <id>central</id>
+      <url>http://repo.maven.apache.org/maven2/</url>
+    </pluginRepository>
+
+    <!-- jlehtinen.net repository -->
+    <pluginRepository>
+      <id>jlehtinen.net</id>
+      <url>http://repo.jlehtinen.net/maven2/</url>
+    </pluginRepository>      
+    
+  </pluginRepositories>
+  
+  <!-- Dependencies for the portlet (Portlet and JSTL APIs) -->
+  <dependencies>
+	<dependency>
+  		<groupId>org.apache.portals</groupId>
+  		<artifactId>portlet-api_2.0_spec</artifactId>
+  		<version>1.0</version>
+  		<scope>provided</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>javax.servlet</groupId>
+  		<artifactId>jstl</artifactId>
+  		<version>1.2</version>
+  		<type>jar</type>
+  		<scope>provided</scope>
+  	</dependency>
+  </dependencies>
+  
+  <!-- Plugin configuration -->
+  <build>
+    <plugins>
+        <plugin>
+            <groupId>net.jlehtinen.portlet</groupId>
+            <artifactId>portlet-prototyping-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <configuration>
+            
+                <!-- Comma-separated list of portlets to be prototyped -->
+                <portletNames>example-portlet</portletNames>
+                
+                <!-- To use custom CSS in the portal -->
+                <!--
+                <cssUrls>
+                  <url>http://my.server/custom.css</url>
+                  <url>http://my.server/another.css</url>
+                </cssUrls> 
+                -->
+                
+                <!-- To use custom Javascript in the portal -->
+                <!--
+                <jsUrls>
+                  <url>http://my.server/custom.js</url>
+                  <url>http://my.server/another.js</url>
+                </jsUrls> 
+                -->
+                
+            </configuration>
+        </plugin>
+    </plugins>
+  </build>
+
+  <!-- Project properties -->
+  <properties>
+    <build.sourceEncoding>UTF-8</build.sourceEncoding>
+  </properties>
+  
+</project>

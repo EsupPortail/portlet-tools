@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype>
+  <id>test-portlet</id>
+  <sources>
+    <source>src/main/java/ExamplePortlet.java</source>
+  </sources>
+  <resources>
+    <resource>src/main/webapp/WEB-INF/portlet.xml</resource>
+    <resource>src/main/webapp/WEB-INF/jsp/example/edit.jsp</resource>
+    <resource>src/main/webapp/WEB-INF/jsp/example/help.jsp</resource>
+    <resource>src/main/webapp/WEB-INF/jsp/example/ask.jsp</resource>
+    <resource>src/main/webapp/WEB-INF/web.xml</resource>
+  </resources>
+</archetype>

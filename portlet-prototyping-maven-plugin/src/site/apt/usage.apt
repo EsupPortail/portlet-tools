@@ -1,0 +1,122 @@
+ ------
+ Usage
+ ------
+ ------
+ ------
+
+~~~
+~~~ Copyright 2010 Johannes Lehtinen 
+~~~ 
+~~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~~ you may not use this file except in compliance with the License.
+~~~ You may obtain a copy of the License at
+~~~ 
+~~~   http://www.apache.org/licenses/LICENSE-2.0
+~~~ 
+~~~ Unless required by applicable law or agreed to in writing, software
+~~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~~ See the License for the specific language governing permissions and
+~~~ limitations under the License.
+~~~
+
+Usage
+
+  Portlet Prototyping Maven Plugin is intended to be used with Maven based portlet
+  development projects for rapid portlet development. It enables
+  on-the-fly prototyping of the portlet being developed without
+  time consuming deploys to a heavy-weight portal server.
+
+
+* Quick Start
+
+  For instant quick start, see the
+  {{{../example-portlet-archetype/index.html}Example Portlet Archetype}}.
+
+
+* Repository Configuration
+
+  For now, this plugin is available in the following
+  custom repository. In addition to the plugin itself, the plugin will also
+  use Maven's artifact resolver to look up additional resources from
+  this repository so you have to add the repository in the list of plugin
+  repositories as well as in the main repository list. 
+
+  <http://repo.jlehtinen.net/maven2/>
+  
+  The following example shows how you can do this within the
+  <project> element of <pom.xml> or the <profile> element of
+  <settings.xml>.
+  
++-----------------------------------------------------------------------
+<!-- Repositories for dependencies -->
+<repositories>
+  
+  <!-- Central repository -->
+  <repository>
+    <id>central</id>
+    <url>http://repo.maven.apache.org/maven2/</url>
+  </repository>
+
+  <!-- jlehtinen.net repository -->
+  <repository>
+    <id>jlehtinen.net</id>
+    <url>http://repo.jlehtinen.net/maven2/</url>
+  </repository>      
+    
+</repositories>
+
+<!-- Repositories for plugins -->
+<pluginRepositories>
+  
+  <!-- Central repository -->
+  <pluginRepository>
+    <id>central</id>
+    <url>http://repo.maven.apache.org/maven2/</url>
+  </pluginRepository>
+
+  <!-- jlehtinen.net repository -->
+  <pluginRepository>
+    <id>jlehtinen.net</id>
+    <url>http://repo.jlehtinen.net/maven2/</url>
+  </pluginRepository>      
+    
+</pluginRepositories>
++-----------------------------------------------------------------------
+
+
+* Plugin Configuration
+
+  You can configure the plugin statically to run a specified subset of
+  portlets defined within the portlet development project. The following
+  example shows how the plugin can be configured to run two portlets,
+  named <MyPortlet> and <OtherPortlet>.
+
++-------------------------------------------------------------------------
+<project>
+  ...
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>net.jlehtinen.portlet</groupId>
+        <artifactId>portlet-prototyping-maven-plugin</artifactId>
+        <configuration>
+          <portletNames>MyPortlet,OtherPortlet</portletNames>
+        </configuration>
+      </plugin>
+      ...
+    </plugins>
+  </build>
+</project>
++-------------------------------------------------------------------------
+
+  Alternatively, you may specify the portlets to be displayed
+  at runtime using the <portletNames> system property.
+
++-------------------------------------------------------------------------
+mvn portlet-prototyping:run -DportletNames=MyPortlet,OtherPortlet
++-------------------------------------------------------------------------
+
+  See {{{./plugin-info.html}plugin information}} for a complete list of
+  configuration options.
