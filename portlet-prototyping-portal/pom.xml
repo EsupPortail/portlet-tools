@@ -16,31 +16,19 @@
         See the License for the specific language governing permissions
         and limitations under the License.
     -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-        <groupId>net.jlehtinen.portlet</groupId>
+        <groupId>org.esupportail</groupId>
         <artifactId>portlet-tools</artifactId>
-        <version>0.9</version>
+        <version>0.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 	<artifactId>portlet-prototyping-portal</artifactId>
 	<packaging>war</packaging>
 	<name>Portlet Prototyping Portal</name>
 	<description>Modified version of the Apache Pluto Portal for rapid portlet prototyping using the Portlet Prototyping Maven Plugin</description>
-	<url>http://www.jlehtinen.net/portlet-tools/portlet-prototyping-portal/</url>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </reporting>
 	<dependencies>
 	    <dependency>
 	        <groupId>${project.groupId}</groupId>
@@ -48,8 +36,8 @@
 	        <version>${project.version}</version>
 	    </dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
 			<version>${servlet-api.version}</version>
 			<type>jar</type>
 			<scope>provided</scope>

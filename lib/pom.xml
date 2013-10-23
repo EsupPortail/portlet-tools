@@ -1,25 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
+		<groupId>org.esupportail</groupId>
 		<artifactId>portlet-tools</artifactId>
-		<groupId>net.jlehtinen.portlet</groupId>
-		<version>0.9</version>
+		<version>0.10-SNAPSHOT</version>
 	</parent>
 	<artifactId>portlet-tools-lib</artifactId>
 	<name>Portlet Tools Library</name>
 	<description>Shared utility classes for portlet tools</description>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jxr-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</reporting>
 	<build>
 		<testResources>
 			<testResource>

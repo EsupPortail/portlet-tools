@@ -164,7 +164,7 @@ limitations under the License.
   <!--</bean>-->
 
   <bean id="RenderConfigService"
-        class="net.jlehtinen.portlet.prototyping.portal.PortletPrototypingRenderConfigServiceImpl"
+        class="org.esupportail.portlet.prototyping.portal.PortletPrototypingRenderConfigServiceImpl"
         singleton="true">
     <constructor-arg>
       <ref bean="ResourceConfigFactory"/>

@@ -8,40 +8,6 @@
   <packaging>war</packaging>
   <description>Example of a portlet project and how to use Portlet Tools for Maven</description>
   
-  <!-- Repositories for dependencies -->
-  <repositories>
-  
-    <!-- Central repository -->
-    <repository>
-      <id>central</id>
-      <url>http://repo.maven.apache.org/maven2/</url>
-    </repository>
-
-    <!-- jlehtinen.net repository -->
-    <repository>
-      <id>jlehtinen.net</id>
-      <url>http://repo.jlehtinen.net/maven2/</url>
-    </repository>      
-    
-  </repositories>
-
-  <!-- Repositories for plugins -->
-  <pluginRepositories>
-  
-    <!-- Central repository -->
-    <pluginRepository>
-      <id>central</id>
-      <url>http://repo.maven.apache.org/maven2/</url>
-    </pluginRepository>
-
-    <!-- jlehtinen.net repository -->
-    <pluginRepository>
-      <id>jlehtinen.net</id>
-      <url>http://repo.jlehtinen.net/maven2/</url>
-    </pluginRepository>      
-    
-  </pluginRepositories>
-  
   <!-- Dependencies for the portlet (Portlet and JSTL APIs) -->
   <dependencies>
 	<dependency>
@@ -63,7 +29,7 @@
   <build>
     <plugins>
         <plugin>
-            <groupId>net.jlehtinen.portlet</groupId>
+            <groupId>org.esupportail</groupId>
             <artifactId>portlet-prototyping-maven-plugin</artifactId>
             <version>${project.version}</version>
             <configuration>
