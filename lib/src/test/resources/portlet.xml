@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
+    version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-Instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd
+                        http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
+
+    <portlet>
+        <portlet-name>example-portlet</portlet-name>
+        <display-name>Example Portlet</display-name>
+        <portlet-info>
+            <title>Example Portlet</title>
+            <short-title>Example</short-title>
+            <keywords>example</keywords>
+        </portlet-info>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <portlet-class>net.jlehtinen.jettypluto.example.ExamplePortlet</portlet-class>
+    </portlet>
+    
+    <portlet>
+        <portlet-name>failing-portlet</portlet-name>
+        <portlet-class>non.existing.Class</portlet-class>
+    </portlet>
+    
+</portlet-app>
