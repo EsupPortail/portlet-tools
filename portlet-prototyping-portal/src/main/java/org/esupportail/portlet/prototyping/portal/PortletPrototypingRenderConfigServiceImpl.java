@@ -70,15 +70,15 @@ public class PortletPrototypingRenderConfigServiceImpl extends RenderConfigServi
 		String portletContext = System.getProperty(PORTLET_CONTEXT_PATH_PROPERTY);
 		String portletNames = System.getProperty(PORTLET_NAMES_PROPERTY);
 		if (portletContext == null) {
-			logger.warn(MessageFormat.format("System property {0} not set, skipping configuration", new Object[] { PORTLET_CONTEXT_PATH_PROPERTY }));
+			logger.warn(MessageFormat.format("System property {0} not set, skipping configuration", PORTLET_CONTEXT_PATH_PROPERTY));
 			return;
 		}
 		if (portletNames == null) {
-			logger.warn(MessageFormat.format("System property {0} not set, skipping configuration", new Object[] { PORTLET_NAMES_PROPERTY }));
+			logger.warn(MessageFormat.format("System property {0} not set, skipping configuration", PORTLET_NAMES_PROPERTY));
 			return;
 		}
-		logger.info(MessageFormat.format("Portlet context path = {0}", new Object[] { portletContext }));
-		logger.info(MessageFormat.format("Portlet names = {0}", new Object[] { portletNames }));
+		logger.info(MessageFormat.format("Portlet context path = {0}", portletContext));
+		logger.info(MessageFormat.format("Portlet names = {0}", portletNames));
 
 		// Parse portlet identifiers
 		String[] parsedPortletNames = portletNames.split(",");
@@ -106,7 +106,7 @@ public class PortletPrototypingRenderConfigServiceImpl extends RenderConfigServi
 			}
 		}
 		
-		logger.info(MessageFormat.format("Configured {0} portlets", new Object[] { new Integer(parsedPortletNames.length) }));
+		logger.info(MessageFormat.format("Configured {0} portlets", parsedPortletNames.length));
 	}
 
 	/**

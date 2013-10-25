@@ -136,7 +136,7 @@ public class ArtifactIdentity {
 			}
 		} else {
 			if (!(new File(file).exists())) {
-				throw new MojoExecutionException(MessageFormat.format("file {0} does not exist", new Object[] { file }));
+				throw new MojoExecutionException(MessageFormat.format("file {0} does not exist", file));
 			}
 		}
 	}
