@@ -19,18 +19,15 @@ package org.esupportail.portlet.prototyping.maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.pluto.util.assemble.AssemblerConfig;
 import org.apache.pluto.util.assemble.AssemblerFactory;
 import org.eclipse.jetty.maven.plugin.JettyRunMojo;
-import org.eclipse.jetty.maven.plugin.JettyWebAppContext;
-import org.eclipse.jetty.maven.plugin.WarPluginInfo;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.esupportail.portlet.util.PortletXml;
@@ -38,8 +35,10 @@ import org.esupportail.portlet.util.ReflectionWrapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -83,8 +82,8 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 
 	/** System property for skipping Java version check */
 	protected static final String SKIP_JAVA_VERSION_CHECK_PROPERTY = "org.esupportail.portlet.prototyping.maven.skipJavaVersionCheck";
-	
-	/**
+
+    /**
 	 * The portlet.xml file to be used. The default location is in ${basedir}/src/main/webapp/WEB-INF.
 	 * The file can also be specified at runtime using the <em>maven.war.portletxml</em>
 	 * property.
@@ -314,25 +313,89 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 	/** Context handler for the Pluto portal. */
 	protected ContextHandler plutoHandler;
 	
-	/** The original web.xml file of the web application */
-	protected File originalWebXml;
-	
 	/** The parsed portlet.xml or null if not loaded yet */
 	protected PortletXml parsedPortletXml;
 
-    @Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+    private final class WebXmlManager implements LifeCycle.Listener {
+        final File webDescr = new File(new File(webAppSourceDirectory, "WEB-INF"), "web.xml");
+        final boolean webDescrExistsAlready = webDescr.exists();
 
-		// Check Java version
+        WebXmlManager() {
+            if (!webDescrExistsAlready) {
+                getLog().info("No web.xml found. Assuming servlet 3.0 mode. Creating a temporary " + webDescr.getPath());
+                createWebDescr();
+            }
+        }
+
+        void createWebDescr() {
+            try(OutputStream out = Files.newOutputStream(webDescr.toPath())) {
+                final String content =
+                        webXmlContent(new ArrayList<>(getParsedPortletXml().getPortletNames()).get(0));
+                out.write(content.getBytes());
+            } catch (MojoExecutionException | IOException e) {
+                getLog().error(e);
+            }
+        }
+
+        void deleteWebDescr() {
+            try {
+                if (!webDescrExistsAlready) {
+                    getLog().info("Attempting to delete " + webDescr.getPath());
+                    Files.deleteIfExists(webDescr.toPath());
+                }
+            } catch (IOException e) {
+                getLog().error(e);
+            }
+        }
+
+        @Override
+        public void lifeCycleStarting(LifeCycle event) {}
+        @Override
+        public void lifeCycleStarted(LifeCycle event) {}
+        @Override
+        public void lifeCycleFailure(LifeCycle event, Throwable cause) { deleteWebDescr(); }
+        @Override
+        public void lifeCycleStopping(LifeCycle event) { deleteWebDescr(); }
+        @Override
+        public void lifeCycleStopped(LifeCycle event) { deleteWebDescr(); }
+    }
+
+    private WebXmlManager webXmlManager;
+
+    private String webXmlContent(String appName) {
+        return  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<web-app xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "xmlns=\"http://java.sun.com/xml/ns/javaee\"\n" +
+                "xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd\"\n" +
+                "version=\"3.0\">\n" +
+                "<display-name>" + appName + "</display-name>\n" +
+                "<context-param>\n" +
+                "<param-name>webAppRootKey</param-name>\n" +
+                "<param-value>" + appName + "</param-value>\n" +
+                "</context-param>\n" +
+                "</web-app>\n";
+    }
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+
+        // Check Java version
 		checkJavaVersion();
 
+        // init some variables in JettyRunMojo
         checkPomConfiguration();
 
-        // Configure this mojo
-		configureJettyPlutoRunMojo();
+        // retrieve or create a temporary web.xml
+        webXmlManager = new WebXmlManager();
 
-		// Assemble portlets for Pluto
-		assemblePortlets();
+        // while jetty's stopping, remove the possible temporary web.xml
+        server.addLifeCycleListener(webXmlManager);
+
+        // Configure this mojo
+        configureJettyPlutoRunMojo();
+
+        // Assemble portlets for Pluto
+        assemblePortlets();
 		
 		// Configure required portal libraries into the Jetty class path
 		configureClassPath();
@@ -341,7 +404,7 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 		plutoHandler = createPlutoContextHandler();
         // and add it to jetty's contextHandlers
         contextHandlers = getConfiguredContextHandlers();
-		
+
 		super.execute();
 	}
 
@@ -381,14 +444,10 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 	 * @see
 	 */
 	public ContextHandler[] getConfiguredContextHandlers() {
-		ContextHandler[] configuredHandlers = contextHandlers;
-		ContextHandler[] handlers;
-		if (configuredHandlers != null) {
-			handlers = Arrays.copyOf(configuredHandlers, configuredHandlers.length + 1);
-		} else {
-			handlers = new ContextHandler[1];
-		}
-		handlers[handlers.length - 1] = plutoHandler;
+        final ContextHandler[] handlers = contextHandlers != null ?
+                Arrays.copyOf(contextHandlers, contextHandlers.length + 1) :
+                new ContextHandler[1];
+        handlers[handlers.length - 1] = plutoHandler;
 		return handlers;
 	}
 
@@ -398,51 +457,39 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 	 * @throws MojoExecutionException on error
 	 */
 	protected void configureJettyPlutoRunMojo() throws MojoExecutionException {
-		// Check which original web.xml should be used
-		originalWebXml = (webXml == null || webXml.equals("")) ? getDefaultWebXml() : new File(webXml);
-		getLog().info(MessageFormat.format("Original web.xml = {0}", originalWebXml));
 		// Make Jetty use the assembled web.xml
-		//configureJettyWebXml(webXmlDestination);
         webXml = webXmlDestination.getPath();
 		getLog().info(MessageFormat.format("Assembled web.xml = {0}", webXml));
 		// Initialize default portlet.xml location, if necessary
 		if (portletXml == null)
             portletXml = getDefaultPortletXml();
 		getLog().info(MessageFormat.format("Original portlet.xml = {0}", portletXml));
-		// Check that web.xml exists
-//		if (!originalWebXml.exists())
-//            throw new MojoExecutionException(MessageFormat.format("Web application descriptor {0} does not exist", originalWebXml));
-		// Check that portlet.xml exists
+        // Check that portlet.xml exists
 		if (!portletXml.exists())
             throw new MojoExecutionException(MessageFormat.format("Portlet descriptor {0} does not exist", portletXml));
 		// Validate the user-specified portal implementation
-		if (portal != null) {
-			try {
-				portal.validate();
-			} catch (MojoExecutionException e) {
-				throw new MojoExecutionException(MessageFormat.format("Invalid <portal> entry in configuration: {0}", e.getMessage()));
-			}
-		}
+		if (portal != null)
+            try {
+                portal.validate();
+            } catch (MojoExecutionException e) {
+                throw new MojoExecutionException(MessageFormat.format("Invalid <portal> entry in configuration: {0}", e.getMessage()));
+            }
 		// Validate the user-specified libraries
-		if (portalLibraries != null) {
-            for (Library portalLibrary : portalLibraries) {
+		if (portalLibraries != null)
+            for (Library portalLibrary : portalLibraries)
                 try {
                     portalLibrary.validate();
                 } catch (MojoExecutionException e) {
                     throw new MojoExecutionException(MessageFormat.format("Invalid <library> entry in configuration: {0}", e.getMessage()));
                 }
-            }
-		}
 		// Validate the user-specified realm data
-		if (users != null) {
-            for (User user : users) {
+		if (users != null)
+            for (User user : users)
                 try {
                     user.validate();
                 } catch (MojoExecutionException e) {
                     throw new MojoExecutionException(MessageFormat.format("Invalid <user> entry in configuration: {0}", e.getMessage()));
                 }
-            }
-		}
 		// Initialize the default portal implementation, if necessary
 		if (portal == null) portal = createDefaultPortal();
 		// Initialize the default set of portal libraries, if necessary
@@ -459,13 +506,9 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 		if (portal.getFile() == null)
             portal.setFile(resolveArtifact(createArtifact(portal)));
 		// Resolve the libraries
-        for (Library l : portalLibraries) {
+        for (Library l : portalLibraries)
             if (l.getFile() == null)
                 l.setFile(resolveArtifact(createArtifact(l)));
-        }
-		// Pass the context path onwards in a system parameter
-		//System.setProperty(PORTLET_CONTEXT_PATH_PROPERTY, getContextPath());
-        getLog().info("HERE !!!!!!!!!!!!!! => " + project.getFile().getPath());
         System.setProperty(PORTLET_CONTEXT_PATH_PROPERTY, webApp.getContextPath());
 		// Pass the portlet identifiers to the portal in a system property
 		if (System.getProperty(PORTLET_NAMES_PROPERTY) == null) {
@@ -482,16 +525,7 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 		// Pass any Javascript URLs to the portal in a system property
 		urlsToProperty(jsUrls, JS_URLS_PROPERTY);
 	}
-	
-	/**
-	 * Returns the default web.xml file.
-	 * 
-	 * @return default web.xml file
-	 */
-	protected File getDefaultWebXml() {
-		return new File(new File(webAppSourceDirectory, "WEB-INF"), "web.xml");
-	}
-	
+
 	/**
 	 * Returns the default portlet.xml file.
 	 * 
@@ -500,7 +534,7 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 	protected File getDefaultPortletXml() {
 		return new File(new File(webAppSourceDirectory, "WEB-INF"), "portlet.xml");
 	}
-	
+
 	/**
 	 * Returns the default string of portlet names, loaded from the portlet.xml.
 	 * 
@@ -593,11 +627,8 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 		}
 		// Create assembler configuration
 		AssemblerConfig assemblerConfig = new AssemblerConfig();
-//		assemblerConfig.setWebappDescriptor(originalWebXml);
-//		assemblerConfig.setPortletDescriptor(portletXmlUsed);
-//		assemblerConfig.setDestination(webXmlDestination);
-        assemblerConfig.setWebappDescriptor(new File("/home/gneuvill/ur1/src/ebottin/src/main/webapp/WEB-INF/web.xml"));
-        assemblerConfig.setPortletDescriptor(new File("/home/gneuvill/ur1/src/ebottin/src/main/webapp/WEB-INF/portlet.xml"));
+		assemblerConfig.setWebappDescriptor(webXmlManager.webDescr);
+		assemblerConfig.setPortletDescriptor(portletXmlUsed);
         assemblerConfig.setDestination(webXmlDestination);
 		// Assembler portlets
 		try {
@@ -645,8 +676,6 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 		plutoHandler.setContextPath(plutoContextPath);
 		plutoHandler.setWar(portal.getFile());
 		plutoHandler.setExtractWAR(true);
-		//Realm realm = new Realm(plutoRealmName, users);
-		//plutoHandler.getSecurityHandler().setUserRealm(realm);
         final HashLoginService loginService = new HashLoginService(plutoRealmName);
         for (User user : users)
             loginService.update(
