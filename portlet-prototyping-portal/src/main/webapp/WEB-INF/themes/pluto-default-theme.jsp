@@ -32,6 +32,7 @@ group (the left column) displays portlets with odd IDs, while the second group
 
 <head>
     <title>Pluto Portal</title>
+    <meta charset="utf-8">
     <%
     String cssUrls = System.getProperty("cssUrls");
     if (cssUrls != null) {

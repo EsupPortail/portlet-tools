@@ -378,33 +378,25 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-
         // Check Java version
 		checkJavaVersion();
-
         // init some variables in JettyRunMojo
         checkPomConfiguration();
-
         // retrieve or create a temporary web.xml
         webXmlManager = new WebXmlManager();
-
         // while jetty's stopping, remove the possible temporary web.xml
         server.addLifeCycleListener(webXmlManager);
-
         // Configure this mojo
         configureJettyPlutoRunMojo();
-
         // Assemble portlets for Pluto
         assemblePortlets();
-		
 		// Configure required portal libraries into the Jetty class path
 		configureClassPath();
-		
 		// Create a context handler for Pluto portal
 		plutoHandler = createPlutoContextHandler();
         // and add it to jetty's contextHandlers
         contextHandlers = getConfiguredContextHandlers();
-
+        // delegate the rest to the original JettyRunMojo
 		super.execute();
 	}
 
