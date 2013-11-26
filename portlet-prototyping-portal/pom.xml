@@ -27,6 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 	<artifactId>portlet-prototyping-portal</artifactId>
+    <version>0.10-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>Portlet Prototyping Portal</name>
 	<description>Modified version of the Apache Pluto Portal for rapid portlet prototyping using the Portlet Prototyping Maven Plugin</description>

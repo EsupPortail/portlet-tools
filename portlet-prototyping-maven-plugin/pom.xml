@@ -27,6 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 	<artifactId>portlet-prototyping-maven-plugin</artifactId>
+    <version>0.10-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 	<name>Portlet Prototyping Maven Plugin</name>
 	<description>
