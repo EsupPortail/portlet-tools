@@ -44,8 +44,7 @@
 	<scm>
         <developerConnection>scm:git:ssh://git@github.com/EsupPortail/portlet-tools.git</developerConnection>
         <url>https://github.com/EsupPortail/portlet-tools</url>
-	  <tag>HEAD</tag>
-  </scm>
+    </scm>
     <distributionManagement>
         <repository>
             <id>esup</id>
