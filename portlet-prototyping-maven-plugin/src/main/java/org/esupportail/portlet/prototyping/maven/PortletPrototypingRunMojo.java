@@ -25,6 +25,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.pluto.util.assemble.AssemblerConfig;
 import org.apache.pluto.util.assemble.AssemblerFactory;
 import org.eclipse.jetty.maven.plugin.JettyRunMojo;
+import org.eclipse.jetty.maven.plugin.JettyWebAppContext;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -88,7 +89,7 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 	 * The file can also be specified at runtime using the <em>maven.war.portletxml</em>
 	 * property.
 	 * 
-	 * @parameter property="maven.war.portletxml"
+	 * @parameter property="maven.war.portletxml" default-value="${basedir}/src/main/webapp/WEB-INF/portlet.xml"
 	 */
 	protected File portletXml;
 	
@@ -449,13 +450,26 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
 	 * @throws MojoExecutionException on error
 	 */
 	protected void configureJettyPlutoRunMojo() throws MojoExecutionException {
+        // Initialize default portlet.xml location, if necessary
+        if (portletXml == null)
+            portletXml = getDefaultPortletXml();
+        getLog().info(MessageFormat.format("Original portlet.xml = {0}", portletXml));
+        // Use portlet names from portlet.xml if not specified
+        if (portletNames == null) {
+            portletNames = getDefaultPortletNames();
+            disableOtherPortlets = false;
+        }
+        // Create a webAppContext for the main portlet if it was not declared in the pom.xml
+        // (through <webApp> or <webAppConfig> with a <contextPath>)
+        if (webApp == null)
+            try {
+                webApp = new JettyWebAppContext() {{ setContextPath("/" + portletNames.split(",")[0]); }};
+            } catch (Exception e) {
+                throw new MojoExecutionException(e.getMessage());
+            }
 		// Make Jetty use the assembled web.xml
         webXml = webXmlDestination.getPath();
 		getLog().info(MessageFormat.format("Assembled web.xml = {0}", webXml));
-		// Initialize default portlet.xml location, if necessary
-		if (portletXml == null)
-            portletXml = getDefaultPortletXml();
-		getLog().info(MessageFormat.format("Original portlet.xml = {0}", portletXml));
         // Check that portlet.xml exists
 		if (!portletXml.exists())
             throw new MojoExecutionException(MessageFormat.format("Portlet descriptor {0} does not exist", portletXml));
@@ -501,17 +515,11 @@ public class PortletPrototypingRunMojo extends JettyRunMojo {
         for (Library l : portalLibraries)
             if (l.getFile() == null)
                 l.setFile(resolveArtifact(createArtifact(l)));
+        // Pass the main portlet's context path (to the portal ?) in a system property
         System.setProperty(PORTLET_CONTEXT_PATH_PROPERTY, webApp.getContextPath());
 		// Pass the portlet identifiers to the portal in a system property
-		if (System.getProperty(PORTLET_NAMES_PROPERTY) == null) {
-			// Use portlet names from portlet.xml if not specified
-			if (portletNames == null) {
-				portletNames = getDefaultPortletNames();
-				disableOtherPortlets = false;
-			}
-			// Set the system property
-			System.setProperty(PORTLET_NAMES_PROPERTY, portletNames);
-		}
+		if (System.getProperty(PORTLET_NAMES_PROPERTY) == null)
+            System.setProperty(PORTLET_NAMES_PROPERTY, portletNames);
 		// Pass any CSS URLs to the portal in a system property
 		urlsToProperty(cssUrls, CSS_URLS_PROPERTY);
 		// Pass any Javascript URLs to the portal in a system property
