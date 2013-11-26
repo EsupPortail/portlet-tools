@@ -21,11 +21,11 @@
 	<parent>
         <groupId>org.esupportail</groupId>
         <artifactId>portlet-tools</artifactId>
-        <version>0.11-SNAPSHOT</version>
+        <version>0.11</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 	<artifactId>portlet-prototyping-portal</artifactId>
-    <version>0.11-SNAPSHOT</version>
+    <version>0.11</version>
 	<packaging>war</packaging>
 	<name>Portlet Prototyping Portal</name>
 	<description>Modified version of the Apache Pluto Portal for rapid portlet prototyping using the Portlet Prototyping Maven Plugin</description>
@@ -33,7 +33,7 @@
 	    <dependency>
 	        <groupId>${project.groupId}</groupId>
 	        <artifactId>portlet-tools-lib</artifactId>
-	        <version>0.11-SNAPSHOT</version>
+	        <version>0.11</version>
 	    </dependency>
 		<dependency>
             <groupId>javax.servlet</groupId>

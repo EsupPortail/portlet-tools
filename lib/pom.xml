@@ -3,10 +3,10 @@
 	<parent>
 		<groupId>org.esupportail</groupId>
 		<artifactId>portlet-tools</artifactId>
-		<version>0.11-SNAPSHOT</version>
+		<version>0.11</version>
 	</parent>
 	<artifactId>portlet-tools-lib</artifactId>
-    <version>0.11-SNAPSHOT</version>
+    <version>0.11</version>
 	<name>Portlet Tools Library</name>
 	<description>Shared utility classes for portlet tools</description>
 	<build>
