@@ -21,10 +21,10 @@
   <parent>
     <groupId>org.esupportail</groupId>
     <artifactId>portlet-tools</artifactId>
-    <version>0.10</version>
+    <version>0.11-SNAPSHOT</version>
   </parent>
   <artifactId>example-portlet-archetype</artifactId>
-  <version>0.10</version>
+  <version>0.11-SNAPSHOT</version>
   <packaging>maven-archetype</packaging>
   <name>Example Portlet Archetype</name>
   <description>Provides an example of a portlet project and how to use Portlet Tools for Maven</description>
